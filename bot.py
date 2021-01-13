@@ -1,8 +1,12 @@
-import discord
+import discord, pymongo
 from discord.ext import commands
 
 
 bot = commands.Bot(command_prefix="mitoko ")
+
+# 链接数据库
+client = pymongo.MongoClient('127.0.0.1', 27017)
+db = client['misaka_modbot']
 
 @bot.event
 async def on_ready():
@@ -68,6 +72,8 @@ async def unban(ctx, *, member):
 @commands.has_role(item = mod_role_id)
 async def mute(ctx, member : discord.Member, *, reason=None):
     mem = str(member)
+    mem_id = str(member.id)
+    srv_id = str(ctx.guild.id)
     embed = discord.Embed(title="你被管理员给予了一张禁言卡", description="You got muted from moderators", color=discord.Color.red())
     embed.set_author(name=mem+" has been muted from moderators", icon_url=member.avatar_url)
     embed.add_field(name="原因 / Reason", value=reason, inline=True)
@@ -78,20 +84,30 @@ async def mute(ctx, member : discord.Member, *, reason=None):
     role = discord.utils.get(ctx.guild.roles, name="Muted")
     user = member
     await user.add_roles(role)
+    db.muted_member.insert_one(mem_id, srv_id)
 
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def unmute(ctx, member : discord.Member):
     mem = str(member)
-    embed = discord.Embed(title="你被管理员取消禁言了", description="You got unmuted from moderators", color=discord.Color.red())
-    embed.set_author(name=mem+" has been unmuted from moderators", icon_url=member.avatar_url)
-    embed.set_footer(text="希望您改正错误，重新做更好的自己 / Hope you correct your mistakes and become a better version of yourself")
-    await ctx.send(embed = embed)
-    channel = await member.create_dm()
-    await channel.send(embed = embed)
-    role = discord.utils.get(ctx.guild.roles, name="Muted")
-    user = member
-    await user.remove_roles(role)
+    mem_id = str(member.id)
+    srv_id = str(ctx.guild.id)
+    muted_member = db.muted_member.find_one(mem_id, srv_id)
+    if muted_member:
+        embed = discord.Embed(title="你被管理员取消禁言了", description="You got unmuted from moderators", color=discord.Color.red())
+        embed.set_author(name=mem+" has been unmuted from moderators", icon_url=member.avatar_url)
+        embed.set_footer(text="希望您改正错误，重新做更好的自己 / Hope you correct your mistakes and become a better version of yourself")
+        await ctx.send(embed = embed)
+        channel = await member.create_dm()
+        await channel.send(embed = embed)
+        role = discord.utils.get(ctx.guild.roles, name="Muted")
+        user = member
+        await user.remove_roles(role)
+        db.muted_member.delete_one(mem_id, srv_id)
+    else:
+        embed = discord.Embed(title="此人从未禁言过", description="This person hasn't muted", color=discord.Color.red())
+        embed.set_footer(text="Please ping a muted member")
+        await ctx.send(embed = embed)
     
 
 bot.run("token")
