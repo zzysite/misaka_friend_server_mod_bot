@@ -9,25 +9,33 @@ client = pymongo.MongoClient('127.0.0.1', 27017)
 db = client['misaka_modbot']
 
 @bot.event
+# 当机器人在成功访问Discord API之后，修改在线状态，打印机器人信息
 async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="Listen to staff please!"))
 
+# 设置管理员的身份组id
 mod_role_id = 'role id here'
 
+# 警告命令
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def warn(ctx, member : discord.Member, *, reason=None):
+    # 使用mem变量，将discord用户名从discord.Member类转换成字符串
     mem = str(member)
+    # 在服务器将会发送的警告提醒
     embed = discord.Embed(title="你被管理员警告了", description="You got warned from moderators", color=discord.Color.red())
     embed.set_author(name=mem+" has been warned from moderators", icon_url=member.avatar_url)
     embed.add_field(name="原因 / Reason", value=reason, inline=True)
     embed.set_footer(text="请自行翻译英文原因 / Please translate the reason if it wrote in Chinese")
+    # 在服务器频道内发送警告提醒
     await ctx.send(embed = embed)
+    # 向被警告的成员的私信发送警告提醒
     channel = await member.create_dm()
     await channel.send(embed = embed)
 
+# 飞机票命令
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def kick(ctx, member : discord.Member, *, reason=None):
