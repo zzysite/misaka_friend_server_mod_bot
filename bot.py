@@ -54,18 +54,23 @@ async def kick(ctx, member : discord.Member, *, reason=None):
     # 给予飞机票
     await member.kick(reason=reason)
 
+# 封锁命令
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def ban(ctx, member : discord.Member, *, reason=None):
     # 使用mem变量，将discord用户名从discord.Member类转换成字符串
     mem = str(member)
+    # 在服务器内发送封锁提醒
     embed = discord.Embed(title="你被管理员给予了一张单程飞机票", description="You got banned from moderators", color=discord.Color.red())
     embed.set_author(name=mem+" has been banned from moderators", icon_url=member.avatar_url)
     embed.add_field(name="原因 / Reason", value=reason, inline=True)
     embed.set_footer(text="请自行翻译英文原因 / Please translate the reason if it wrote in Chinese")
+    # 在服务器频道内发送封锁提醒
     await ctx.send(embed = embed)
+    # 向封锁成员的私信内发送封锁提醒
     channel = await member.create_dm()
     await channel.send(embed = embed)
+    # 封锁成员
     await member.ban(reason=reason)
 
 @bot.command()
