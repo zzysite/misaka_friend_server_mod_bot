@@ -39,19 +39,25 @@ async def warn(ctx, member : discord.Member, *, reason=None):
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def kick(ctx, member : discord.Member, *, reason=None):
+    # 使用mem变量，将discord用户名从discord.Member类转换成字符串
     mem = str(member)
+    # 在服务器将会发送的飞机票提醒
     embed = discord.Embed(title="你被管理员给予了一张飞机票", description="You got kicked from moderators", color=discord.Color.red())
     embed.set_author(name=mem+" has been kicked from moderators", icon_url=member.avatar_url)
     embed.add_field(name="原因 / Reason", value=reason, inline=True)
     embed.set_footer(text="请自行翻译英文原因 / Please translate the reason if it wrote in Chinese")
+    # 在服务器频道内发送飞机票提醒
     await ctx.send(embed = embed)
+    # 在被飞机票成员的私信内发送飞机票提醒
     channel = await member.create_dm()
     await channel.send(embed = embed)
+    # 给予飞机票
     await member.kick(reason=reason)
 
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def ban(ctx, member : discord.Member, *, reason=None):
+    # 使用mem变量，将discord用户名从discord.Member类转换成字符串
     mem = str(member)
     embed = discord.Embed(title="你被管理员给予了一张单程飞机票", description="You got banned from moderators", color=discord.Color.red())
     embed.set_author(name=mem+" has been banned from moderators", icon_url=member.avatar_url)
@@ -79,6 +85,7 @@ async def unban(ctx, *, member):
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def mute(ctx, member : discord.Member, *, reason=None):
+    # 使用mem变量，将discord用户名从discord.Member类转换成字符串
     mem = str(member)
     mem_id = str(member.id)
     srv_id = str(ctx.guild.id)
@@ -97,6 +104,7 @@ async def mute(ctx, member : discord.Member, *, reason=None):
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def unmute(ctx, member : discord.Member):
+    # 使用mem变量，将discord用户名从discord.Member类转换成字符串
     mem = str(member)
     mem_id = str(member.id)
     srv_id = str(ctx.guild.id)
