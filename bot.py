@@ -73,6 +73,7 @@ async def ban(ctx, member : discord.Member, *, reason=None):
     # 封锁成员
     await member.ban(reason=reason)
 
+# 解封成员命令
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def unban(ctx, *, member):
@@ -87,6 +88,7 @@ async def unban(ctx, *, member):
     await ctx.send(f"{user} have been unbanned sucessfully")
     return
 
+# 禁言命令
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def mute(ctx, member : discord.Member, *, reason=None):
@@ -106,6 +108,7 @@ async def mute(ctx, member : discord.Member, *, reason=None):
     await user.add_roles(role)
     db.muted_member.insert_one(mem_id, srv_id)
 
+# 取消禁言命令
 @bot.command()
 @commands.has_role(item = mod_role_id)
 async def unmute(ctx, member : discord.Member):
